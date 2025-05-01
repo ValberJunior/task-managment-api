@@ -5,5 +5,7 @@ export class AuthResponseDto {
 
 export interface JwtPayload {
   sub: string;
-  token: string;
+  username?: string;
+  iat: number;
+  exp: number;
 }
