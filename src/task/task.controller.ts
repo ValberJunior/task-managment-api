@@ -6,8 +6,9 @@ import {
   Param,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
-import { TaskDto } from './task.dto';
+import { GetAllParams, TaskDto } from './task.dto';
 import { TaskService } from './task.service';
 
 @Controller('task')
@@ -20,8 +21,8 @@ export class TaskController {
   }
 
   @Get()
-  getAll() {
-    return this.taskService.getAllTasks();
+  getAll(@Query() params: GetAllParams): TaskDto[] {
+    return this.taskService.getAllTasks(params);
   }
 
   @Get('/:id')

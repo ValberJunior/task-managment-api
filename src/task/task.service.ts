@@ -1,5 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { TaskDto } from './task.dto';
+import { GetAllParams, TaskDto } from './task.dto';
 
 @Injectable()
 export class TaskService {
@@ -9,8 +9,17 @@ export class TaskService {
     this.tasks.push(task);
   }
 
-  getAllTasks() {
-    return this.tasks;
+  getAllTasks(params: GetAllParams): TaskDto[] {
+    return this.tasks.filter((t) => {
+      let match = true;
+      if (params.title !== undefined && t.title !== params.title) {
+        match = false;
+      }
+      if (params.status !== undefined && t.status !== params.status) {
+        match = false;
+      }
+      return match;
+    });
   }
 
   getById(id: string): TaskDto {
