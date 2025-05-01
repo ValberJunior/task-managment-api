@@ -11,8 +11,8 @@ export class UsersService {
     return this.users.some((user) => user.id === id);
   }
 
-  private usernameExists(username: string): boolean {
-    return this.users.some((user) => user.username === username);
+  usernameExists(username: string): UserDto | undefined {
+    return this.users.find((user) => user.username === username);
   }
 
   create(user: Omit<UserDto, 'id'>) {
