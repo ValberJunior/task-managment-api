@@ -29,7 +29,7 @@ export class TaskService {
       );
       return this.tasks;
     }
-    throw new HttpException(`Task ${id} not found`, HttpStatus.NOT_FOUND);
+    throw new HttpException(`Task ${id} not found`, HttpStatus.BAD_REQUEST);
   }
 
   delete(id: string) {
@@ -38,6 +38,6 @@ export class TaskService {
       this.tasks = this.tasks.filter((t) => t.id !== id);
       return this.tasks;
     }
-    throw new HttpException(`Task ${id} not found`, HttpStatus.NOT_FOUND);
+    throw new HttpException(`Task ${id} not found`, HttpStatus.BAD_REQUEST);
   }
 }
