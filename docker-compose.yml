@@ -10,3 +10,5 @@ services:
       POSTGRES_DB: task-manager-api
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
