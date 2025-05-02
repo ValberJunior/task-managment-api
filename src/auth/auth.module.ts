@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/require-await */
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
@@ -10,7 +11,7 @@ import { UsersModule } from 'src/users/users.module';
     JwtModule.registerAsync({
       global: true,
       imports: [],
-      useFactory: (configService: ConfigService) => ({
+      useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
         signOptions: {
           expiresIn: +configService.get<number>('JWT_EXPIRATION_TIME')!,
