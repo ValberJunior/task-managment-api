@@ -2,6 +2,7 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class UserTable1746180843028 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
     await queryRunner.query(`
       CREATE TABLE "user" (
          id uuid NOT NULL DEFAULT uuid_generate_v4(),
