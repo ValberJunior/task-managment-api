@@ -2,6 +2,7 @@
 import {
   IsDateString,
   IsEnum,
+  IsOptional,
   IsString,
   IsUUID,
   MaxLength,
@@ -16,6 +17,7 @@ export enum TaskStatusEnum {
 
 export class TaskDto {
   @IsUUID()
+  @IsOptional()
   id: string;
 
   @IsString()
