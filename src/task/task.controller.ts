@@ -19,7 +19,7 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
-  create(@Body() task: TaskDto) {
+  create(@Body() task: Omit<TaskDto, 'id'>) {
     this.taskService.create(task);
   }
 
