@@ -52,9 +52,9 @@ export class TaskService {
       throw new HttpException(`Task ${id} not found`, HttpStatus.BAD_REQUEST);
     }
 
-    const taskUpdateData = { ...taskFound, ...taskUpdate };
-    await this.taskRepository.update(id, taskUpdateData);
-    return taskUpdateData;
+    const updatedTask = { ...taskFound, ...taskUpdate };
+    await this.taskRepository.update(id, updatedTask);
+    return updatedTask;
   }
 
   async delete(id: string): Promise<void> {
@@ -72,7 +72,7 @@ export class TaskService {
   private mapEntityToDto(taskEntity: TaskEntity): TaskDto {
     return {
       id: taskEntity.id,
-      title: taskEntity.description,
+      title: taskEntity.title,
       description: taskEntity.description,
       expirationDate: taskEntity.expirationDate,
       status: TaskStatusEnum[taskEntity.status] as string,
