@@ -1,21 +1,47 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+import {
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { GetAllUserParams, UserDto } from './user.dto';
 import { v4 as uuid } from 'uuid';
 import { hashSync as bcryptHashSync } from 'bcrypt';
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserEntity } from 'src/db/entities/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersService {
-  private users: UserDto[] = [];
+  constructor(
+    @InjectRepository(UserEntity)
+    private readonly usersRepository: Repository<UserEntity>,
+  ) {}
 
-  private userExists(id: string): boolean {
-    return this.users.some((user) => user.id === id);
+  private async userExists(id: string): Promise<boolean> {
+    const userExists = await this.usersRepository.findOne({
+      where: { id },
+    });
+
+    return !!userExists;
   }
 
-  usernameExists(username: string): UserDto | undefined {
-    return this.users.find((user) => user.username === username);
+  async usernameExists(username: string): Promise<UserDto | null> {
+    const userfound = await this.usersRepository.findOne({
+      where: { username },
+    });
+
+    if (!userfound) return null;
+
+    return {
+      id: userfound.id,
+      username: userfound.username,
+      password: userfound.passwordHash,
+    };
   }
 
-  create(user: Omit<UserDto, 'id'>) {
+  async create(user: Omit<UserDto, 'id'>) {
     if (!user.username || !user.password) {
       throw new HttpException(
         'Fields required* {usename:string, password: string}',
@@ -23,25 +49,31 @@ export class UsersService {
       );
     }
 
-    if (this.usernameExists(user.username)) {
-      throw new HttpException(
-        'Username already exists',
-        HttpStatus.BAD_REQUEST,
-      );
+    const userAlreadyRegistered = await this.usernameExists(user.username);
+
+    if (userAlreadyRegistered) {
+      throw new ConflictException(`User ${user.username} already registered`);
     }
 
-    const newUser = {
+    let dbUser = new UserEntity();
+
+    dbUser = {
       ...user,
       id: uuid(),
-      password: bcryptHashSync(user.password, 10),
+      passwordHash: bcryptHashSync(user.password, 10),
     };
-    this.users.push(newUser);
 
-    return newUser;
+    await this.usersRepository.save(dbUser);
   }
 
-  listAllUsers(params: GetAllUserParams): UserDto[] {
-    return this.users.filter((user) => {
+  async listAllUsers(params: GetAllUserParams): Promise<UserDto[]> {
+    const userTable = await this.usersRepository.find();
+    const users = userTable.map((user) => ({
+      id: user.id,
+      username: user.username,
+      password: user.passwordHash,
+    }));
+    return users.filter((user) => {
       let match = true;
       if (
         params.username !== undefined &&
@@ -53,29 +85,45 @@ export class UsersService {
     });
   }
 
-  getUserById(id: string): UserDto {
-    const userFound = this.users.find((user) => user.id === id);
+  async getUserById(id: string): Promise<UserDto> {
+    const userFound = await this.usersRepository.findOne({
+      where: { id },
+    });
     if (!userFound) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    return userFound;
+    return {
+      id: userFound.id,
+      username: userFound.username,
+      password: userFound.passwordHash,
+    };
   }
 
-  updateUser(id: string, userData: Partial<UserDto>): UserDto[] {
-    if (!this.userExists(id)) {
+  async updateUser(id: string, userData: Partial<UserDto>): Promise<UserDto> {
+    const userExists = await this.userExists(id);
+
+    if (!userExists) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    this.users = this.users.map((user) =>
-      user.id === id ? { ...user, ...userData } : user,
-    );
-    return this.users;
+
+    await this.usersRepository.update(id, {
+      ...userData,
+      passwordHash: userData.password
+        ? bcryptHashSync(userData.password, 10)
+        : undefined,
+    });
+
+    const updatedUser = await this.getUserById(id);
+    return updatedUser;
   }
 
-  deleteUser(id: string): UserDto[] {
-    if (!this.userExists(id)) {
+  async deleteUser(id: string): Promise<void> {
+    const userFound = await this.usersRepository.findOne({
+      where: { id },
+    });
+    if (!userFound) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    this.users = this.users.filter((user) => user.id !== id);
-    return this.users;
+    await this.usersRepository.delete(id);
   }
 }

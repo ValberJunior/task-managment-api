@@ -19,8 +19,8 @@ export class AuthService {
     )!;
   }
 
-  signIn(username: string, password: string): AuthResponseDto {
-    const foundUser = this.usersService.usernameExists(username);
+  async signIn(username: string, password: string): Promise<AuthResponseDto> {
+    const foundUser = await this.usersService.usernameExists(username);
     if (!foundUser || !bycryptCompareSync(password, foundUser.password)) {
       throw new UnauthorizedException();
     }
