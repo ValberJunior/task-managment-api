@@ -15,5 +15,5 @@ export class TaskEntity {
   status: string;
 
   @Column({ type: 'timestamptz', name: 'expiration_date' })
-  expirationData: string;
+  expirationDate: string;
 }

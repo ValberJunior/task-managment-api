@@ -34,7 +34,7 @@ export class TaskDto {
   status: string;
 
   @IsDateString()
-  expirationData: string;
+  expirationDate: string;
 }
 
 export interface GetAllParams {

@@ -19,27 +19,27 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @Post()
-  create(@Body() task: Omit<TaskDto, 'id'>) {
-    this.taskService.create(task);
+  async create(@Body() task: Omit<TaskDto, 'id'>): Promise<TaskDto> {
+    return await this.taskService.create(task);
   }
 
   @Get()
-  getAll(@Query() params: GetAllParams): TaskDto[] {
-    return this.taskService.getAllTasks(params);
+  async getAll(@Query() params: GetAllParams): Promise<TaskDto[]> {
+    return await this.taskService.getAllTasks(params);
   }
 
   @Get('/:id')
-  getById(@Param('id') id: string): TaskDto {
-    return this.taskService.getById(id);
+  async getById(@Param('id') id: string): Promise<TaskDto> {
+    return await this.taskService.getById(id);
   }
 
   @Patch('/:id')
-  update(@Param('id') id: string, @Body() taskUpdate: Partial<TaskDto>) {
-    return this.taskService.update(id, taskUpdate);
+  async update(@Param('id') id: string, @Body() taskUpdate: Partial<TaskDto>) {
+    return await this.taskService.update(id, taskUpdate);
   }
 
   @Delete('/:id')
-  delete(@Param('id') id: string) {
-    return this.taskService.delete(id);
+  async delete(@Param('id') id: string): Promise<void> {
+    return await this.taskService.delete(id);
   }
 }
