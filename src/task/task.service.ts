@@ -62,7 +62,11 @@ export class TaskService {
     if (!foundTask) {
       throw new HttpException(`Task ${id} not found`, HttpStatus.NOT_FOUND);
     }
-    await this.taskRepository.delete(id);
+    const result = await this.taskRepository.delete(id);
+
+    if (!result) {
+      throw new HttpException(`Task ${id} not found`, HttpStatus.NOT_FOUND);
+    }
   }
 
   private mapEntityToDto(taskEntity: TaskEntity): TaskDto {

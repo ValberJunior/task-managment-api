@@ -124,6 +124,10 @@ export class UsersService {
     if (!userFound) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-    await this.usersRepository.delete(id);
+    const result = await this.usersRepository.delete(id);
+
+    if (!result) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
   }
 }
